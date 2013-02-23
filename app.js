@@ -11,9 +11,7 @@ function handler(req, res) {
 
 app.listen( app_port || 1337, null );
 
-
-
-//io.set('log level', 1);
+io.set('log level', 1);
 
 /*io.sockets.on( 'connection', function( socket ) {
 
