@@ -7,9 +7,11 @@ var u = require( "./utils" );
 var g = require( "./game" );
 var c = require( "./constants" );
 
+var Util = u.Util;
 var Game = g.Game;
 var Settings = g.Settings;
-var Util = u.Util;
+
+console.log( Util );
 
 function handler(req, res) {
     var message = 'TO INFINITY AND BEYOND<br/>that means it\'s working<br/>app_port:' + app_port;
@@ -29,7 +31,8 @@ io.sockets.on( 'connection', function( socket ) {
         alreadyInit = true;
         
         Settings.init();
-        Game.run({ canvas: null, //don't need to render
+        Game.run( Util, null, //pass modules
+                  { canvas: null, //don't need to render
                    render: null,
                    update: Game.update,
                    step: Settings.step,

@@ -55,12 +55,13 @@ var Util = {
     }
 }
 
-function requestAnimationFrame( callback, element ) {
-   window.setTimeout( callback, 1000 / 60 );
-}
-
 var module = module || {};
 
 module.exports = {
     Util: Util
+}
+
+//should be overriden
+function requestAnimationFrame( callback, element ) {
+   window.setTimeout( callback, 1000 / 60 );
 }
