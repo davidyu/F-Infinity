@@ -3,9 +3,21 @@ var web_port = 80;
 
 var PUSH_INTERVAL = 1000/10; //don't flood
 
-//var server = require('http').createServer( handler );
 var app = require('http').createServer( handler );
-var io = require('socket.io').listen(app);
+//var static = require('node-static'); // for serving files
+var io = require('socket.io').listen( app );
+
+//var fileServer = new (static.Server)('./');
+/*
+require('http').createServer(function (request, response) {
+    request.addListener('end', function () {
+        //
+        // Serve files!
+        //
+        fileServer.serve( request, response );
+    });
+}).listen( web_port );
+*/
 
 require( "./constants" );
 var u = require( "./utils" );
@@ -30,6 +42,7 @@ io.set('log level', 1);
 
 var alreadyInit = false;
 
+io.set('transports', ['xhr-polling']);
 io.sockets.on( 'connection', function( socket ) {
 
     if ( !alreadyInit ) {

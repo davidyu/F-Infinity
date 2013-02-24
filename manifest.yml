@@ -1,0 +1,9 @@
+---
+applications:
+- name: finfinity
+  framework: node
+  runtime: node08
+  memory: 128M
+  instances: 1
+  url: finfinity.${target-base}
+  path: .
