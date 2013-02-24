@@ -6,6 +6,7 @@ var PUSH_INTERVAL = 1000/10; //don't flood
 var app = require('http').createServer( handler );
 //var static = require('node-static'); // for serving files
 var io = require('socket.io').listen( app );
+io.set('transports', ['xhr-polling']);
 
 //var fileServer = new (static.Server)('./');
 /*
@@ -42,7 +43,6 @@ io.set('log level', 1);
 
 var alreadyInit = false;
 
-io.set('transports', ['xhr-polling']);
 io.sockets.on( 'connection', function( socket ) {
 
     if ( !alreadyInit ) {
