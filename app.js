@@ -6,7 +6,10 @@ var PUSH_INTERVAL = 1000/10; //don't flood
 var app = require('http').createServer( handler );
 //var static = require('node-static'); // for serving files
 var io = require('socket.io').listen( app );
-io.set('transports', ['xhr-polling']);
+io.configure(function () {
+  io.set("transports", ["xhr-polling"]);
+  io.set("polling duration", 10);
+});
 
 //var fileServer = new (static.Server)('./');
 /*
