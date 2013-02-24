@@ -23,7 +23,7 @@ function handler(req, res) {
     res.end( message );
 }
 
-app.listen( app_port || 1337, null );
+app.listen( web_port || 1337, null );
 //server.listen( web_port || 1337, null );
 
 io.set('log level', 1);
