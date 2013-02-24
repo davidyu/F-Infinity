@@ -3,7 +3,7 @@ var web_port = 80;
 
 var PUSH_INTERVAL = 1000/10; //don't flood
 
-var server = require('http').createServer( handler );
+//var server = require('http').createServer( handler );
 var app = require('http').createServer( handler );
 var io = require('socket.io').listen(app);
 
@@ -24,7 +24,7 @@ function handler(req, res) {
 }
 
 app.listen( app_port || 1337, null );
-server.listen( web_port || 1337, null );
+//server.listen( web_port || 1337, null );
 
 io.set('log level', 1);
 
