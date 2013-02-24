@@ -1,7 +1,9 @@
 var app_port = 8080;
+var web_port = 80;
 
 var PUSH_INTERVAL = 1000/10; //don't flood
 
+var server = require('http').createServer( handler );
 var app = require('http').createServer( handler );
 var io = require('socket.io').listen(app);
 
@@ -16,12 +18,13 @@ var Settings = g.Settings;
 var Server = s.Server;
 
 function handler(req, res) {
-    var message = 'TO INFINITY AND BEYOND<br/>that means it\'s working<br/>app_port:' + app_port;
+    var message = 'TO INFINITY  AND BEYOND<br/>that means it\'s working<br/>app_port:' + app_port;
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end( message );
 }
 
 app.listen( app_port || 1337, null );
+server.listen( web_port || 1337, null );
 
 io.set('log level', 1);
 
