@@ -6,10 +6,12 @@ var io = require('socket.io').listen(app);
 require( "./constants" );
 var u = require( "./utils" );
 var g = require( "./game" );
+var s = require( "./server" );
 
 var Util = u.Util;
 var Game = g.Game;
 var Settings = g.Settings;
+var Server = s.Server;
 
 function handler(req, res) {
     var message = 'TO INFINITY AND BEYOND<br/>that means it\'s working<br/>app_port:' + app_port;
@@ -27,7 +29,7 @@ io.sockets.on( 'connection', function( socket ) {
 
     if ( !alreadyInit ) {
         alreadyInit = true;
-        
+        Server.init( Settings );
         Settings.init();
         Game.run( Util, null, //pass modules
                   { canvas: null, //don't need to render
@@ -40,12 +42,19 @@ io.sockets.on( 'connection', function( socket ) {
                       //do nothing
                       Settings.reset();
                    }
-        } );
-        
+        } );   
     }
 
     socket.on( 'keystatechange', function( data ) {
-        
+        Settings.keyLeft = data.keyLeft;
+        Settings.keyRight = data.keyRight;
+        Settings.keyFaster = data.keyFaster;
+        Settings.keySlower = data.keySlower;
+        Server.sendPositions( socket ); //broadcast
     });
 
+    /*
+    socket.on( 'requestposition', function( data ) {
+
+    } )*/
 })
