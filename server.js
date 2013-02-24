@@ -25,17 +25,18 @@ var Server = {
     },
 
     addPlayer: function( socket, id ) {
-        console.log( "added a player ");
         this.numPlayers++;
         var pid = this.joined[0];
         this.joined[0]++;
         S.addPlayer( pid );
         this.playerLookupTable[ id ] = { game: 0, gamePlayerIndex: pid };
         socket.emit( "setup", { d : pid });
+        console.log( "added player " + id );
     },
 
     removePlayer: function( id ) {
-        S.removePlayer(playerLookupTable[ id ].gamePlayerIndex);
+        S.removePlayer( this.playerLookupTable[ id ].gamePlayerIndex );
+        console.log( "removed player " + id );
     },
 
     hasRoom: function() {

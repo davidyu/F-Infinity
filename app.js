@@ -57,7 +57,7 @@ io.sockets.on( 'connection', function( socket ) {
     socket.on( 'message', function( message ) {
         console.log( "received message: " + message );
         if ( message == "inquire" && Server.hasRoom() ) {
-            Server.addPlayer( socket, socket.handshake.address );
+            Server.addPlayer( socket, socket.handshake.address.address + ":" + socket.handshake.address.port );
         } else {
             socket.send("no");
         }
