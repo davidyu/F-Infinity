@@ -60,7 +60,6 @@ io.sockets.on( 'connection', function( socket ) {
     } );
 
     socket.on( 'message', function( message ) {
-        console.log( "received message: " + message );
         if ( message == "inquire" && Server.hasRoom() ) {
             Server.addPlayer( socket, socket.handshake.address );
         } else {
@@ -69,7 +68,6 @@ io.sockets.on( 'connection', function( socket ) {
     } );
 
     socket.on( 'disconnect', function( reason ) {
-        console.log( socket.handshake.address );
         Server.removePlayer( socket.handshake.address );
     } );
 
