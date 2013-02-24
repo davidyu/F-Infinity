@@ -3,15 +3,13 @@ var app_port = 8080;
 var app = require('http').createServer( handler );
 var io = require('socket.io').listen(app);
 
+require( "./constants" );
 var u = require( "./utils" );
 var g = require( "./game" );
-var c = require( "./constants" );
 
 var Util = u.Util;
 var Game = g.Game;
 var Settings = g.Settings;
-
-console.log( Util );
 
 function handler(req, res) {
     var message = 'TO INFINITY AND BEYOND<br/>that means it\'s working<br/>app_port:' + app_port;
