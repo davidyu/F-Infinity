@@ -6,6 +6,9 @@ var PUSH_INTERVAL = 1000/10; //don't flood
 var app = require('http').createServer( handler );
 //var static = require('node-static'); // for serving files
 var io = require('socket.io').listen( app );
+
+app.listen( process.env.PORT || 1337, null );
+
 io.configure(function () {
   io.set("transports", ["xhr-polling"]);
   io.set("polling duration", 10);
@@ -39,7 +42,6 @@ function handler(req, res) {
     res.end( message );
 }
 
-app.listen( web_port || 1337, null );
 //server.listen( web_port || 1337, null );
 
 io.set('log level', 1);
