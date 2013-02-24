@@ -1,17 +1,17 @@
 var app_port = 8080;
 var web_port = 80;
 
-var PUSH_INTERVAL = 1000/10; //don't flood
+var PUSH_INTERVAL = 1000/20; //don't flood
 
 var app = require('http').createServer( handler );
 //var static = require('node-static'); // for serving files
 var io = require('socket.io').listen( app );
 
-app.listen( process.env.PORT || 1337, null );
+app.listen( web_port || 1337, null );
 
 io.configure(function () {
-  io.set("transports", ["xhr-polling"]);
-  io.set("polling duration", 10);
+  //io.set("transports", ["xhr-polling"]);
+  //io.set("polling duration", 10);
 });
 
 //var fileServer = new (static.Server)('./');
