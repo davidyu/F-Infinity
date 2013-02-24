@@ -1,5 +1,7 @@
 var app_port = 8080;
 
+var PUSH_INTERVAL = 1000/10; //don't flood
+
 var app = require('http').createServer( handler );
 var io = require('socket.io').listen(app);
 
@@ -30,6 +32,7 @@ io.sockets.on( 'connection', function( socket ) {
     if ( !alreadyInit ) {
         alreadyInit = true;
         Server.init( Settings );
+        setInterval( function() { Server.sendPositions( socket ); }, PUSH_INTERVAL );
         Settings.init();
         Settings.me = -1;
         Game.run( Util, null, //pass modules
@@ -47,23 +50,26 @@ io.sockets.on( 'connection', function( socket ) {
     }
 
     socket.on( 'keystatechange', function( data ) {
-        Settings.players[ data.pid ].keyLeft = data.keyLeft;
-        Settings.players[ data.pid ].keyRight = data.keyRight;
-        Settings.players[ data.pid ].keyFaster = data.keyFaster;
-        Settings.players[ data.pid ].keySlower = data.keySlower;
-        Server.sendPositions( socket, data.pid ); //broadcast'
+
+        if ( Settings.players[ data.pid ] ) {
+            Settings.players[ data.pid ].keyLeft = data.keyLeft;
+            Settings.players[ data.pid ].keyRight = data.keyRight;
+            Settings.players[ data.pid ].keyFaster = data.keyFaster;
+            Settings.players[ data.pid ].keySlower = data.keySlower;
+        }
     } );
 
     socket.on( 'message', function( message ) {
         console.log( "received message: " + message );
         if ( message == "inquire" && Server.hasRoom() ) {
-            Server.addPlayer( socket, socket.handshake.address.address + ":" + socket.handshake.address.port );
+            Server.addPlayer( socket, socket.handshake.address );
         } else {
             socket.send("no");
         }
     } );
 
     socket.on( 'disconnect', function( reason ) {
+        console.log( socket.handshake.address );
         Server.removePlayer( socket.handshake.address );
     } );
 

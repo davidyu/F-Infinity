@@ -70,7 +70,7 @@ var Settings = {
         this.hillOffset    = 0;                       // current hill scroll offset
         this.treeOffset    = 0;                       // current tree scroll offset
         this.segments      = [];                      // array of road segments
-        this.players       = [ Player, Player ];
+        this.players       = [];
         this.background    = null;                    // our background image (loaded below)
         this.sprites       = null;                    // our spritesheet (loaded below)
         this.resolution    = null;                    // scaling factor to provide resolution independence (computed)
@@ -94,18 +94,16 @@ var Settings = {
     },
 
     addPlayer: function( i ) {
-        this.players[i] = Player;
-
-        //reset player i
-        this.players[i].X = 0; //this should change depending on the player
-        this.players[i].Z = Settings.cameraHeight * Settings.cameraDepth;
-        this.players[i].speed = 0;
-        this.players[i].position = 0;
-        this.players[i].keyLeft       = false;
-        this.players[i].keyRight      = false;
-        this.players[i].keyFaster     = false;
-        this.players[i].keySlower     = false;
-
+        console.log( this.players );
+        this.players[i] =  {    X             : 0,                       // player x offset from center of road (-1 to 1 to stay independent of roadWidth)
+                                Z             : Settings.cameraHeight * Settings.cameraDepth,                    // player relative z distance from camera (computed)
+                                position      : 0,                       // current camera Z position (add playerZ to get player's absolute Z position)
+                                speed         : 0,                       // current speed
+                                keyLeft       : false,
+                                keyRight      : false,
+                                keyFaster     : false,
+                                keySlower     : false,
+                            }
     },
 
     removePlayer: function( index ) {
@@ -406,8 +404,9 @@ var Game = {
     },
 
     update: function( dt ) {
-        console.log( Settings.players );
+
         for( n = 0 ; n < Settings.players.length ; n++ ) {
+
             if ( !Settings.players[n] )
                 continue;
 
@@ -415,7 +414,7 @@ var Game = {
             var position = Settings.players[n].position;
 
             var playerZ = Settings.players[n].Z;
-            var playerSegment = Settings.findSegment( position + playerZ );
+            var playerSegment = Settings.findSegment( position + playerZ ); //need to check old and new playerSegments
             var speedPercent  = speed/Settings.maxSpeed;
             var playerW       = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE;
             var dx = dt * 2 * speedPercent; // at top speed, should be able to cross from left to right (-1 to 1) in 1 second
@@ -423,11 +422,10 @@ var Game = {
             //disable AI cars for now
             //Game.updateCars( dt, playerSegment, playerW );
 
-            Settings.players[n].position = U.increase( position, dt * speed, Settings.trackLength );        
+            Settings.players[n].position = U.increase( Settings.players[n].position, dt * speed, Settings.trackLength );
 
             //only use key info if server or is client and me is n
             if ( !Settings.client ? n != Settings.me : n == Settings.me ) {
-                console.log( "updating my speed" );
                 if ( Settings.players[n].keyLeft )
                     Settings.players[n].X -= dx;
                 else if ( Settings.players[n].keyRight )
@@ -437,23 +435,18 @@ var Game = {
             Settings.players[n].X -= (dx * speedPercent * playerSegment.curve * Settings.centrifugal);
 
             if ( !Settings.client ? n != Settings.me : n == Settings.me ) {
-                console.log( "updating my speed" );
                 if ( Settings.players[n].keyFaster )
-                    Settings.players[n].speed = U.accelerate( speed, Settings.accel, dt );
+                    Settings.players[n].speed = U.accelerate( Settings.players[n].speed, Settings.accel, dt );
                 else if ( Settings.players[n].keySlower )
-                    Settings.players[n].speed = U.accelerate( speed, Settings.breaking, dt );
+                    Settings.players[n].speed = U.accelerate( Settings.players[n].speed, Settings.breaking, dt );
                 else
-                    Settings.players[n].speed = U.accelerate( speed, Settings.decel, dt );
+                    Settings.players[n].speed = U.accelerate( Settings.players[n].speed, Settings.decel, dt );
             }
-
-            speed = Settings.players[n].speed; //speed has been updated
 
             var playerX = Settings.players[n].X;
 
             if ( ( ( playerX < -1 ) || ( playerX > 1 ) ) && ( speed > Settings.offRoadLimit ) )
-                Settings.players[n].speed = U.accelerate( speed, Settings.offRoadDecel, dt );n
-
-            speed = Settings.players[n].speed; //speed has been updated
+                Settings.players[n].speed = U.accelerate( Settings.players[n].speed, Settings.offRoadDecel, dt );
 
             //disable player-ai collisions for now
             /*
@@ -470,10 +463,8 @@ var Game = {
             }
             */
 
-            speed = Settings.players[n].speed; //speed has been updated
-
             Settings.players[n].X     = U.limit( playerX, -2, 2 );     // dont ever let player go too far out of bounds
-            Settings.players[n].speed = U.limit( speed, 0, Settings.maxSpeed ); // or exceed maxSpeed
+            Settings.players[n].speed = U.limit( Settings.players[n].speed, 0, Settings.maxSpeed ); // or exceed maxSpeed
         }
 
         if ( Settings.client ) {
@@ -485,6 +476,12 @@ var Game = {
             Settings.skyOffset  = U.increase(Settings.skyOffset,  Settings.skySpeed  * playerSegment.curve * speedPercent, 1);
             Settings.hillOffset = U.increase(Settings.hillOffset, Settings.hillSpeed * playerSegment.curve * speedPercent, 1);
             Settings.treeOffset = U.increase(Settings.treeOffset, Settings.treeSpeed * playerSegment.curve * speedPercent, 1);
+
+            for( n = 0 ; n < Settings.players.length ; n++ ) {
+                if ( !Settings.players[n] )
+                    continue;
+                Settings.players[n].percent = U.percentRemaining( Settings.players[n].Z, Settings.segmentLength ); // useful for interpolation during rendering phase
+            }
         }
 
     },

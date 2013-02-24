@@ -7,13 +7,14 @@ var Client = {
         this.socket.send( "inquire" ); //can i haz play
 
         this.socket.on( "setup", function( data ) {
+
+            console.log( "connection established! I am " + data.d );
+
             Settings.me = parseInt( data.d );
 
             var me = Settings.me;
             Settings.init();
             Settings.addPlayer( me );
-
-            console.log( Settings.players[ me ] );
             
             Render.init();
 
@@ -37,16 +38,40 @@ var Client = {
                           Settings.background = images[0];
                           Settings.sprites    = images[1];
                           Settings.reset();
-                          console.log( Settings.players[ me ] );
                        }
             } );
 
         } );
 
-        this.socket.on( 'positionchange', function( data ) {
-            console.log( data );
+        //me
+        this.socket.on( 'positionverify', function( data ) {
+            if ( data.pid == Settings.me ) {
+                Settings.players[ Settings.me ].position = data.position;
+            }
+        } );
 
-            Settings.position = data.position;
+        //other players
+        this.socket.on( 'positionchange', function( data ) {
+
+            for ( i = 0; i < data.players.length; i++ ) {
+                if ( !Settings.players[i]) {
+                    Settings.addPlayer(i);
+                }
+
+                Settings.players[i].position = data.players[i].position;
+                Settings.players[i].speed = data.players[i].speed;
+                Settings.players[i].X = data.players[i].X;
+            }
+
+            /*
+            Settings.players[ data.pid ].position = data.position;
+            Settings.players[ data.pid ].speed = data.speed;
+            Settings.players[ data.pid ].X = data.X;
+            Settings.players[ data.pid ].keyLeft = data.keyLeft;
+            Settings.players[ data.pid ].keyRight = data.keyRight;
+            Settings.players[ data.pid ].keyFaster = data.keyFaster;
+            Settings.players[ data.pid ].keySlower = data.keySlower;
+            */
         } );
 
         this.socket.on( 'message', function( message ) {

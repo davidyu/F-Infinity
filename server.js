@@ -1,6 +1,6 @@
 S = {};
 
-var MAX_PLAYERS = 2; //soft cap
+var MAX_PLAYERS = 8; //soft cap
 
 var Server = {
 
@@ -15,13 +15,25 @@ var Server = {
         this.playerLookupTable  = {};
     },
 
-    sendPositions: function( socket, pid ) {
-        var msg = {
-            position: S.players[ pid ].position,
-        }
+    sendPositions: function( socket ) {
+        var msg = {}
 
-        console.log( "broadcasting position" );
+        msg.players = [];
+
+        for ( i = 0; i < S.players.length; i++ ) {
+            if ( !S.players[i] ) {
+                continue;
+            }
+
+            msg.players[i] = {};
+
+            msg.players[i].position = S.players[i].position;
+            msg.players[i].speed = S.players[i].speed;
+            msg.players[i].X = S.players[i].X;
+        }
+        
         socket.emit( 'positionchange', msg );
+        socket.broadcast.emit( 'positionchange', msg );
     },
 
     addPlayer: function( socket, id ) {
@@ -35,8 +47,16 @@ var Server = {
     },
 
     removePlayer: function( id ) {
-        S.removePlayer( this.playerLookupTable[ id ].gamePlayerIndex );
-        console.log( "removed player " + id );
+        console.log( this.playerLookupTable );
+        if ( this.playerLookupTable[ id ] ) {
+            S.removePlayer( this.playerLookupTable[ id ].gamePlayerIndex );
+            this.joined[0]--;
+            this.numPlayers--;
+            console.log( "removed player " + id );
+        } else {
+            console.log( "tried to remove but no record exists for player." );
+        }
+        
     },
 
     hasRoom: function() {
