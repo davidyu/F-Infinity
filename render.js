@@ -259,6 +259,8 @@ var Render = {
             }
         }
 
+        }
+
     },
 
     rumbleWidth:     function( projectedRoadWidth, lanes ) { return projectedRoadWidth/Math.max(6,  2*lanes); },

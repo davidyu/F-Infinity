@@ -50,8 +50,20 @@ io.sockets.on( 'connection', function( socket ) {
         Settings.keyRight = data.keyRight;
         Settings.keyFaster = data.keyFaster;
         Settings.keySlower = data.keySlower;
-        Server.sendPositions( socket ); //broadcast
-    });
+        Server.sendPositions( socket ); //broadcast'
+    } );
+
+    socket.on( 'message', function( message ) {
+        if ( message == "inquire" && Server.hasRoom() ) {
+            Server.addPlayer( socket, socket.handshake.address );
+        } else {
+            socket.send("no");
+        }
+    } );
+
+    socket.on( 'disconnect', function( reason ) {
+        removePlayer( socket.handshake.address );
+    } );
 
     /*
     socket.on( 'requestposition', function( data ) {
