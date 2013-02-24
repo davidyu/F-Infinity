@@ -31,6 +31,7 @@ io.sockets.on( 'connection', function( socket ) {
         alreadyInit = true;
         Server.init( Settings );
         Settings.init();
+        Settings.me = -1;
         Game.run( Util, null, //pass modules
                   { canvas: null, //don't need to render
                    render: null,
@@ -42,18 +43,19 @@ io.sockets.on( 'connection', function( socket ) {
                       //do nothing
                       Settings.reset();
                    }
-        } );   
+        } );
     }
 
     socket.on( 'keystatechange', function( data ) {
-        Settings.keyLeft = data.keyLeft;
-        Settings.keyRight = data.keyRight;
-        Settings.keyFaster = data.keyFaster;
-        Settings.keySlower = data.keySlower;
-        Server.sendPositions( socket ); //broadcast'
+        Settings.players[ data.pid ].keyLeft = data.keyLeft;
+        Settings.players[ data.pid ].keyRight = data.keyRight;
+        Settings.players[ data.pid ].keyFaster = data.keyFaster;
+        Settings.players[ data.pid ].keySlower = data.keySlower;
+        Server.sendPositions( socket, data.pid ); //broadcast'
     } );
 
     socket.on( 'message', function( message ) {
+        console.log( "received message: " + message );
         if ( message == "inquire" && Server.hasRoom() ) {
             Server.addPlayer( socket, socket.handshake.address );
         } else {
@@ -62,7 +64,7 @@ io.sockets.on( 'connection', function( socket ) {
     } );
 
     socket.on( 'disconnect', function( reason ) {
-        removePlayer( socket.handshake.address );
+        Server.removePlayer( socket.handshake.address );
     } );
 
     /*

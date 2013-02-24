@@ -172,10 +172,15 @@ var Render = {
 
     render: function( position ) {
 
+        var playerZ = Settings.players[ Settings.me ].Z;
+        var playerX = Settings.players[ Settings.me ].X;
+
+        console.log( playerZ );
+
         var baseSegment   = Settings.findSegment( position );
         var basePercent   = Util.percentRemaining( position, Settings.segmentLength );
-        var playerSegment = Settings.findSegment( position + Settings.playerZ );
-        var playerPercent = Util.percentRemaining( position + Settings.playerZ, Settings.segmentLength );
+        var playerSegment = Settings.findSegment( position + playerZ );
+        var playerPercent = Util.percentRemaining( position + playerZ, Settings.segmentLength );
         var playerY       = Util.interpolate( playerSegment.p1.world.y, playerSegment.p2.world.y, playerPercent );
 
         var maxy          = Settings.height;
@@ -203,8 +208,8 @@ var Render = {
             segment.fog    = Util.exponentialFog( n / drawDistance, Settings.fogDensity );
             segment.clip   = maxy;
 
-            Util.project( segment.p1, ( Settings.playerX * Settings.roadWidth) - x,      playerY + Settings.cameraHeight, Settings.position - (segment.looped ? Settings.trackLength : 0), Settings.cameraDepth, Settings.width, Settings.height, Settings.roadWidth );
-            Util.project( segment.p2, ( Settings.playerX * Settings.roadWidth) - x - dx, playerY + Settings.cameraHeight, Settings.position - (segment.looped ? Settings.trackLength : 0), Settings.cameraDepth, Settings.width, Settings.height, Settings.roadWidth );
+            Util.project( segment.p1, ( playerX * Settings.roadWidth) - x,      playerY + Settings.cameraHeight, Settings.players[ Settings.me ].position - (segment.looped ? Settings.trackLength : 0), Settings.cameraDepth, Settings.width, Settings.height, Settings.roadWidth );
+            Util.project( segment.p2, ( playerX * Settings.roadWidth) - x - dx, playerY + Settings.cameraHeight, Settings.players[ Settings.me ].position - (segment.looped ? Settings.trackLength : 0), Settings.cameraDepth, Settings.width, Settings.height, Settings.roadWidth );
 
             x  += dx;
             dx += segment.curve;
@@ -250,6 +255,7 @@ var Render = {
             }
 
             if ( segment == playerSegment ) {
+                console.log( "rendering player sprite" );
                 Render.player( ctx, Settings.width, Settings.height, Settings.resolution, Settings.roadWidth, Settings.sprites, Settings.speed/Settings.maxSpeed,
                                Settings.cameraDepth/(Settings.playerZ),
                                Settings.width / 2,
@@ -257,8 +263,6 @@ var Render = {
                                Settings.speed * ( Settings.keyLeft ? -1 : Settings.keyRight ? 1 : 0 ),
                                playerSegment.p2.world.y - playerSegment.p1.world.y );                
             }
-        }
-
         }
 
     },

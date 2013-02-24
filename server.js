@@ -15,9 +15,9 @@ var Server = {
         this.playerLookupTable  = {};
     },
 
-    sendPositions: function( socket ) {
+    sendPositions: function( socket, pid ) {
         var msg = {
-            position: S.position,
+            position: S.players[ pid ].position,
         }
 
         console.log( "broadcasting position" );
@@ -27,13 +27,14 @@ var Server = {
     addPlayer: function( socket, id ) {
         console.log( "added a player ");
         this.numPlayers++;
+        var pid = this.joined[0];
         this.joined[0]++;
-        S.addPlayer(this.joined[0]);
-        this.playerLookupTable[ id ] = { game: 0, gamePlayerIndex: this.joined[0] };
-        socket.emit( "setup", { d : this.joined[0] });
+        S.addPlayer( pid );
+        this.playerLookupTable[ id ] = { game: 0, gamePlayerIndex: pid };
+        socket.emit( "setup", { d : pid });
     },
 
-    disconnect: function( id ) {
+    removePlayer: function( id ) {
         S.removePlayer(playerLookupTable[ id ].gamePlayerIndex);
     },
 
